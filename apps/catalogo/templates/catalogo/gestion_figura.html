@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Inventario | Mundo Figuras{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="h3 fw-bold mb-1"><i class="bi bi-boxes text-warning me-2"></i>Gestión de Inventario</h1>
+        <p class="text-muted small mb-0">Panel operativo para administrar el catálogo de figuras, stock y precios.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'catalogo:crear' %}" class="btn btn-warning fw-semibold text-dark">
+            <i class="bi bi-plus-circle me-1"></i>Ingresar Nueva Figura
+        </a>
+        <a href="/admin/catalogo/figura/" target="_blank" class="btn btn-outline-dark">
+            <i class="bi bi-shield-lock me-1"></i>Panel de Control
+        </a>
+    </div>
+</div>
+
+<!-- Filtro de Búsqueda Rápida -->
+<div class="card border shadow-sm p-3 mb-4 rounded-3 bg-white">
+    <form method="get" class="row g-2">
+        <div class="col-md-10">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por nombre, fabricante o franquicia..." value="{{ query }}">
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-dark">Filtrar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de Figuras -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col" style="width: 70px;">ID</th>
+                    <th scope="col" style="width: 80px;">Foto</th>
+                    <th scope="col">Nombre de la Figura</th>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Fabricante</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="text-end" style="width: 150px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fig in figuras %}
+                <tr>
+                    <td class="fw-bold text-muted">#{{ fig.id }}</td>
+                    <td>
+                        {% if fig.imagen %}
+                            <img src="{{ fig.imagen.url }}" alt="{{ fig.nombre }}" class="rounded border" style="width: 48px; height: 48px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded border text-center d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="bi bi-image text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'catalogo:detalle' fig.slug %}" class="fw-bold text-dark text-decoration-none">
+                            {{ fig.nombre }}
+                        </a>
+                        {% if fig.destacado %}
+                            <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">Destacada</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ fig.categoria.nombre }}</span></td>
+                    <td class="text-secondary small">{{ fig.fabricante }}</td>
+                    <td class="fw-bold text-dark">{{ fig.precio_formateado }}</td>
+                    <td>
+                        {% if fig.en_stock %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">{{ fig.stock }} un.</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Sin stock</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if fig.activo %}
+                            <span class="badge bg-success">Activo</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'catalogo:editar' fig.id %}" class="btn btn-outline-primary" title="Editar Figura">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'catalogo:eliminar' fig.id %}" class="btn btn-outline-danger" title="Eliminar Figura">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                        No hay figuras registradas en el inventario.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación de la Tabla -->
+    {% if figuras.has_other_pages %}
+    <div class="card-footer bg-white py-3">
+        <ul class="pagination pagination-sm justify-content-center mb-0">
+            {% if figuras.has_previous %}
+                <li class="page-item"><a class="page-link text-dark" href="?page={{ figuras.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Anterior</a></li>
+            {% endif %}
+            {% for i in figuras.paginator.page_range %}
+                <li class="page-item {% if figuras.number == i %}active{% endif %}">
+                    <a class="page-link {% if figuras.number == i %}bg-dark border-dark{% else %}text-dark{% endif %}" href="?page={{ i }}{% if query %}&q={{ query }}{% endif %}">{{ i }}</a>
+                </li>
+            {% endfor %}
+            {% if figuras.has_next %}
+                <li class="page-item"><a class="page-link text-dark" href="?page={{ figuras.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Siguiente</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Cuenta | Mundo Figuras{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="bg-dark text-white p-4 p-md-5">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-person-circle fs-1 text-warning"></i>
+                    <div>
+                        <h2 class="h3 fw-bold mb-0">{{ usuario.get_full_name|default:usuario.username }}</h2>
+                        <span class="badge bg-warning text-dark fw-bold mt-1">@{{ usuario.username }}</span>
+                        {% if usuario.is_staff %}
+                            <span class="badge bg-info text-dark fw-bold mt-1 ms-1">Personal de Tienda</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <h5 class="fw-bold mb-3"><i class="bi bi-person-lines-fill me-2 text-warning"></i>Datos del Cliente</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light text-muted w-25">Nombre Completo:</th>
+                                <td>{{ usuario.get_full_name|default:"No especificado" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Correo Electrónico:</th>
+                                <td>{{ usuario.email|default:"No registrado" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Fecha de Creación:</th>
+                                <td>{{ usuario.date_joined|date:"d \d\e F \d\e Y" }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Último Acceso:</th>
+                                <td>{{ usuario.last_login|date:"d \d\e F \d\e Y, H:i"|default:"Primer acceso" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <a href="{% url 'catalogo:lista' %}" class="btn btn-warning fw-semibold">
+                        <i class="bi bi-grid me-1"></i>Explorar Catálogo
+                    </a>
+                    {% if usuario.is_staff %}
+                        <a href="{% url 'catalogo:gestion' %}" class="btn btn-dark">
+                            <i class="bi bi-boxes me-1"></i>Gestionar Inventario
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

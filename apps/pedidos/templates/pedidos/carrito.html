@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Carrito de Compras | Mundo Figuras{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-1"><i class="bi bi-cart3 text-warning me-2"></i>Carrito de Compras</h1>
+    <p class="text-muted small">Colección de figuras seleccionadas para tu compra.</p>
+</div>
+
+{% if esta_vacio %}
+<div class="card border-0 shadow-sm rounded-4 text-center py-5 bg-white">
+    <div class="card-body py-5">
+        <i class="bi bi-cart-x text-muted display-1 mb-3"></i>
+        <h3 class="fw-bold text-secondary">Tu carrito de compras está vacío</h3>
+        <p class="text-muted mb-4">Aún no has agregado figuras a tu pedido.</p>
+        <a href="{% url 'catalogo:lista' %}" class="btn btn-warning px-4 py-2 fw-bold text-dark">
+            <i class="bi bi-grid-3x3-gap me-2"></i>Explorar Figuras Coleccionables
+        </a>
+    </div>
+</div>
+{% else %}
+<div class="row g-4">
+    <!-- Tabla de Ítems en Carrito -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3 bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col" style="width: 80px;">Foto</th>
+                            <th scope="col">Figura</th>
+                            <th scope="col">Precio Unit.</th>
+                            <th scope="col" class="text-center" style="width: 150px;">Cantidad</th>
+                            <th scope="col" class="text-end">Subtotal</th>
+                            <th scope="col" class="text-end" style="width: 60px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items_carrito %}
+                        <tr>
+                            <td>
+                                {% if item.imagen_url %}
+                                    <img src="{{ item.imagen_url }}" alt="{{ item.nombre }}" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light rounded border text-center d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'catalogo:detalle' item.slug %}" class="fw-bold text-dark text-decoration-none">
+                                    {{ item.nombre }}
+                                </a>
+                                <small class="text-muted d-block">{{ item.fabricante }}</small>
+                            </td>
+                            <td class="text-muted">${{ item.precio|floatformat:0 }}</td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm border rounded">
+                                    <a href="{% url 'pedidos:restar' item.id %}" class="btn btn-light px-2" title="Restar">-</a>
+                                    <span class="btn btn-light disabled text-dark fw-bold px-3">{{ item.cantidad }}</span>
+                                    <a href="{% url 'pedidos:agregar' item.id %}" class="btn btn-light px-2" title="Sumar">+</a>
+                                </div>
+                            </td>
+                            <td class="text-end fw-bold text-dark">${{ item.subtotal|floatformat:0 }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'pedidos:eliminar' item.id %}" class="text-danger" title="Eliminar ítem">
+                                    <i class="bi bi-trash fs-5"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer bg-white p-3 d-flex justify-content-between align-items-center">
+                <a href="{% url 'catalogo:lista' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Seguir Viendo Figuras
+                </a>
+                <a href="{% url 'pedidos:limpiar' %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Deseas vaciar el carrito?');">
+                    <i class="bi bi-trash me-1"></i>Vaciar Carrito
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de Compra -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-3"><i class="bi bi-receipt me-2 text-warning"></i>Resumen de Compra</h5>
+
+            <div class="d-flex justify-content-between text-muted mb-2">
+                <span>Subtotal neto:</span>
+                <span>${{ subtotal|floatformat:0 }} CLP</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted mb-3">
+                <span>IVA (19%):</span>
+                <span>${{ iva|floatformat:0 }} CLP</span>
+            </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="fs-5 fw-bold text-dark">Total a Pagar:</span>
+                <span class="fs-4 fw-bold text-dark">${{ total|floatformat:0 }} CLP</span>
+            </div>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'pedidos:checkout' %}" class="btn btn-warning w-100 py-3 fw-bold text-dark shadow-sm">
+                    <i class="bi bi-credit-card me-2"></i>Confirmar y Procesar Compra
+                </a>
+            {% else %}
+                <div class="alert alert-warning small mb-3">
+                    <i class="bi bi-info-circle me-1"></i>Inicia sesión con tu cuenta para confirmar la compra.
+                </div>
+                <a href="{% url 'usuarios:login' %}?next={% url 'pedidos:checkout' %}" class="btn btn-warning w-100 py-3 fw-bold text-dark">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión para Comprar
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

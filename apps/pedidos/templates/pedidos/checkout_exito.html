@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Compra Confirmada | Mundo Figuras{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 text-center p-4 p-md-5 bg-white">
+            <div class="mb-4">
+                <i class="bi bi-check-circle-fill text-success display-1"></i>
+                <h1 class="h2 fw-bold mt-3">¡Orden Confirmada con Éxito!</h1>
+                <p class="text-muted lead">Muchas gracias por tu compra, {{ user.first_name|default:user.username }}. Tus piezas coleccionables están siendo preparadas.</p>
+                <span class="badge bg-dark fs-6 px-3 py-2 text-warning">Código de Pedido: {{ orden_id }}</span>
+            </div>
+
+            <div class="text-start border rounded-3 p-3 p-md-4 mb-4 bg-light">
+                <h5 class="fw-bold mb-3"><i class="bi bi-box-seam me-2 text-warning"></i>Figuras adquiridas:</h5>
+                <ul class="list-group list-group-flush mb-3">
+                    {% for item in items %}
+                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0">
+                        <div>
+                            <strong>{{ item.nombre }}</strong>
+                            <span class="text-muted small d-block">{{ item.fabricante }} - Cantidad: {{ item.cantidad }} x ${{ item.precio|floatformat:0 }}</span>
+                        </div>
+                        <span class="fw-bold">${{ item.subtotal|floatformat:0 }} CLP</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="d-flex justify-content-between pt-2 border-top">
+                    <span>Subtotal neto:</span>
+                    <span>${{ subtotal|floatformat:0 }} CLP</span>
+                </div>
+                <div class="d-flex justify-content-between text-muted">
+                    <span>IVA (19%):</span>
+                    <span>${{ iva|floatformat:0 }} CLP</span>
+                </div>
+                <div class="d-flex justify-content-between fs-5 fw-bold text-dark pt-2 border-top mt-2">
+                    <span>Total Pagado:</span>
+                    <span class="text-dark">${{ total|floatformat:0 }} CLP</span>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'catalogo:lista' %}" class="btn btn-warning fw-bold text-dark px-4 py-2">
+                    <i class="bi bi-grid-3x3-gap me-1"></i>Seguir Explorando
+                </a>
+                <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-secondary px-4 py-2">
+                    <i class="bi bi-person me-1"></i>Ver Mi Cuenta
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
